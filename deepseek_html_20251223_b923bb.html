@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Три в ряд - Прототип</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background: black;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 1.2em;
+        }
+        
+        .score, .moves {
+            text-align: center;
+        }
+        
+        .score-value, .moves-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin: 0 auto 25px;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 500px;
+        }
+        
+        .cell {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 2em; /* Увеличим размер эмоджи */
+            user-select: none;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .cell.selected {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+            transform: scale(1.05);
+            background-color: rgba(255, 215, 0, 0.2);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(to bottom, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 50px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .rules {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        .rules h3 {
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        
+        .rules ul {
+            padding-left: 20px;
+        }
+        
+        .rules li {
+            margin-bottom: 8px;
+        }
+        
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.2em;
+            height: 30px;
+            color: #FFD700;
+        }
+        
+        @media (max-width: 600px) {
+            .game-board {
+                grid-template-columns: repeat(8, 1fr);
+                gap: 4px;
+            }
+            
+            .cell {
+                font-size: 1.5em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Три в ряд - Прототип</h1>
+    
+    <div class="container">
+        <div class="game-info">
+            <div class="score">
+                <div>Счет</div>
+                <div class="score-value">0</div>
+            </div>
+            <div class="moves">
+                <div>Ходы</div>
+                <div class="moves-value">0</div>
+            </div>
+        </div>
+        
+        <div class="game-board" id="gameBoard">
+            <!-- Игровое поле будет сгенерировано через JavaScript -->
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="controls">
+            <button id="restartButton">Новая ИГРА</button>
+            <button id="hintButton">Подсказка!</button>
+        </div>
+        
+        <div class="rules">
+            <h3>Правила игры:</h3>
+            <ul>
+                <li>Цель: соберите линии из трех или более одинаковых фруктов</li>
+                <li>Нажмите на фрукт, чтобы выделить его, затем нажмите на соседний фрукт, чтобы поменять их местами</li>
+                <li>Если после обмена образуется линия из трех или более одинаковых фруктов, они исчезнут, и вы получите очки</li>
+                <li>Игра продолжается, пока есть возможные ходы</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация игры
+        const config = {
+            rows: 8,
+            cols: 8,
+            // Только 4 типа фруктов
+            colors: ['🍎', '🍌', '🍇', '🍊'],
+            minMatch: 3,
+            scorePerTile: 10,
+            maxMoves: 30
+        };
+        
+        // Состояние игры
+        let gameState = {
+            board: [],
+            selectedCell: null,
+            score: 0,
+            moves: 0,
+            gameOver: false
+        };
+        
+        // Элементы DOM
+        const gameBoard = document.getElementById('gameBoard');
+        const scoreValue = document.querySelector('.score-value');
+        const movesValue = document.querySelector('.moves-value');
+        const messageEl = document.getElementById('message');
+        const restartButton = document.getElementById('restartButton');
+        const hintButton = document.getElementById('hintButton');
+        
+        // Инициализация игры
+        function initGame() {
+            gameState.board = [];
+            gameState.selectedCell = null;
+            gameState.score = 0;
+            gameState.moves = 0;
+            gameState.gameOver = false;
+            
+            // Создаем пустое поле
+            for (let row = 0; row < config.rows; row++) {
+                gameState.board[row] = [];
+                for (let col = 0; col < config.cols; col++) {
+                    gameState.board[row][col] = {
+                        color: null,
+                        row: row,
+                        col: col
+                    };
+                }
+            }
+            
+            // Заполняем поле случайными фигурами
+            fillBoard();
+            
+            // Убираем начальные совпадения
+            removeInitialMatches();
+            
+            // Отрисовываем поле
+            renderBoard();
+            updateUI();
+            showMessage("Игра началась! Выберите фрукт для обмена.");
+        }
+        
+        // Заполнение поля случайными фигурами
+        function fillBoard() {
+            for (let row = 0; row < config.rows; row++) {
+                for (let col = 0; col < config.cols; col++) {
+                    // Назначаем случайный цвет
+                    gameState.board[row][col].color = getRandomColor();
+                }
+            }
+        }
+        
+        // Удаление начальных совпадений
+        function removeInitialMatches() {
+            let hasMatches = true;
+            
+            // Пока есть совпадения, заменяем их новыми фигурами
+            while (hasMatches) {
+                const matches = findAllMatches();
+                if (matches.length === 0) {
+                    hasMatches = false;
+                } else {
+                    // Заменяем совпадающие фигуры
+                    for (const match of matches) {
+                        for (const tile of match.tiles) {
+                            gameState.board[tile.row][tile.col].color = getRandomColor();
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Получение случайного цвета
+        function getRandomColor() {
+            return config.colors[Math.floor(Math.random() * config.colors.length)];
+        }
+        
+        // Отрисовка игрового поля
+        function renderBoard() {
+            gameBoard.innerHTML = '';
+            gameBoard.style.gridTemplateColumns = `repeat(${config.cols}, 1fr)`;
+            
+            for (let row = 0; row < config.rows; row++) {
+                for (let col = 0; col < config.cols; col++) {
+                    const tile = gameState.board[row][col];
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.textContent = tile.color;
+                    
+                    // Добавляем обработчик клика
+                    cell.addEventListener('click', () => handleCellClick(row, col));
+                    
+                    gameBoard.appendChild(cell);
+                }
+            }
+            
+            // Обновляем выделенную ячейку
+            if (gameState.selectedCell) {
+                const {row, col} = gameState.selectedCell;
+                const selectedCell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (selectedCell) {
+                    selectedCell.classList.add('selected');
+                }
+            }
+        }
+        
+        // Обработка клика по ячейке
+        function handleCellClick(row, col) {
+            if (gameState.gameOver) return;
+            
+            // Если ничего не выбрано, выбираем эту ячейку
+            if (!gameState.selectedCell) {
+                gameState.selectedCell = {row, col};
+                renderBoard();
+                showMessage(`Выбран фрукт. Теперь выберите соседний фрукт для обмена.`);
+                return;
+            }
+            
+            const selectedRow = gameState.selectedCell.row;
+            const selectedCol = gameState.selectedCell.col;
+            
+            // Проверяем, является ли выбранная ячейка соседней
+            const isAdjacent = Math.abs(row - selectedRow) + Math.abs(col - selectedCol) === 1;
+            
+            if (!isAdjacent) {
+                // Если ячейка не соседняя, просто выбираем новую
+                gameState.selectedCell = {row, col};
+                renderBoard();
+                showMessage(`Выбран другой фрукт. Теперь выберите соседний фрукт для обмена.`);
+                return;
+            }
+            
+            // Меняем фигуры местами
+            swapTiles(selectedRow, selectedCol, row, col);
+            
+            // Проверяем, есть ли совпадения после обмена
+            const matches = findAllMatches();
+            
+            if (matches.length === 0) {
+                // Если совпадений нет, возвращаем фигуры на место
+                swapTiles(selectedRow, selectedCol, row, col);
+                gameState.selectedCell = null;
+                renderBoard();
+                showMessage("Не образовалось линий. Попробуйте другой обмен.");
+            } else {
+                // Если есть совпадения, обрабатываем их
+                gameState.selectedCell = null;
+                gameState.moves++;
+                processMatches(matches);
+                showMessage(`Отлично! Вы набрали очки за собранные линии.`);
+                
+                // Проверяем, не закончилась ли игра
+                checkGameOver();
+            }
+            
+            updateUI();
+        }
+        
+        // Обмен двух фигур местами
+        function swapTiles(row1, col1, row2, col2) {
+            const temp = gameState.board[row1][col1].color;
+            gameState.board[row1][col1].color = gameState.board[row2][col2].color;
+            gameState.board[row2][col2].color = temp;
+        }
+        
+        // Поиск всех совпадений на поле
+        function findAllMatches() {
+            const matches = [];
+            
+            // Проверка горизонтальных совпадений
+            for (let row = 0; row < config.rows; row++) {
+                for (let col = 0; col < config.cols - 2; col++) {
+                    const color = gameState.board[row][col].color;
+                    if (color && 
+                        color === gameState.board[row][col+1].color && 
+                        color === gameState.board[row][col+2].color) {
+                        
+                        // Расширяем совпадение, если есть более 3 фигур в ряд
+                        let matchEnd = col + 2;
+                        while (matchEnd + 1 < config.cols && 
+                               gameState.board[row][matchEnd+1].color === color) {
+                            matchEnd++;
+                        }
+                        
+                        const tiles = [];
+                        for (let c = col; c <= matchEnd; c++) {
+                            tiles.push({row, col: c});
+                        }
+                        
+                        matches.push({
+                            color: color,
+                            tiles: tiles,
+                            direction: 'horizontal'
+                        });
+                        
+                        col = matchEnd; // Пропускаем уже проверенные ячейки
+                    }
+                }
+            }
+            
+            // Проверка вертикальных совпадений
+            for (let col = 0; col < config.cols; col++) {
+                for (let row = 0; row < config.rows - 2; row++) {
+                    const color = gameState.board[row][col].color;
+                    if (color && 
+                        color === gameState.board[row+1][col].color && 
+                        color === gameState.board[row+2][col].color) {
+                        
+                        // Расширяем совпадение, если есть более 3 фигур в ряд
+                        let matchEnd = row + 2;
+                        while (matchEnd + 1 < config.rows && 
+                               gameState.board[matchEnd+1][col].color === color) {
+                            matchEnd++;
+                        }
+                        
+                        const tiles = [];
+                        for (let r = row; r <= matchEnd; r++) {
+                            tiles.push({row: r, col});
+                        }
+                        
+                        matches.push({
+                            color: color,
+                            tiles: tiles,
+                            direction: 'vertical'
+                        });
+                        
+                        row = matchEnd; // Пропускаем уже проверенные ячейки
+                    }
+                }
+            }
+            
+            return matches;
+        }
+        
+        // Обработка совпадений
+        function processMatches(matches) {
+            // Собираем все ячейки, которые нужно удалить
+            const tilesToRemove = [];
+            for (const match of matches) {
+                for (const tile of match.tiles) {
+                    // Проверяем, не добавлена ли уже эта ячейка
+                    if (!tilesToRemove.some(t => t.row === tile.row && t.col === tile.col)) {
+                        tilesToRemove.push(tile);
+                    }
+                }
+            }
+            
+            // Удаляем фигуры
+            for (const tile of tilesToRemove) {
+                gameState.board[tile.row][tile.col].color = null;
+            }
+            
+            // Добавляем очки
+            gameState.score += tilesToRemove.length * config.scorePerTile;
+            
+            // Анимируем удаление
+            renderBoard();
+            
+            // Заполняем пустые места новыми фигурами
+            setTimeout(() => {
+                dropTiles();
+                fillEmptySpaces();
+                
+                // Проверяем, не появились ли новые совпадения после падения
+                const newMatches = findAllMatches();
+                if (newMatches.length > 0) {
+                    // Рекурсивно обрабатываем новые совпадения
+                    setTimeout(() => {
+                        processMatches(newMatches);
+                        showMessage("Комбо! Дополнительные линии!");
+                    }, 500);
+                }
+            }, 500);
+        }
+        
+        // Падение фигур вниз
+        function dropTiles() {
+            for (let col = 0; col < config.cols; col++) {
+                let emptyRow = config.rows - 1;
+                
+                // Идем снизу вверх
+                for (let row = config.rows - 1; row >= 0; row--) {
+                    if (gameState.board[row][col].color !== null) {
+                        // Если текущая ячейка не пуста, перемещаем ее вниз
+                        if (row !== emptyRow) {
+                            gameState.board[emptyRow][col].color = gameState.board[row][col].color;
+                            gameState.board[row][col].color = null;
+                        }
+                        emptyRow--;
+                    }
+                }
+            }
+        }
+        
+        // Заполнение пустых мест новыми фигурами
+        function fillEmptySpaces() {
+            for (let row = 0; row < config.rows; row++) {
+                for (let col = 0; col < config.cols; col++) {
+                    if (gameState.board[row][col].color === null) {
+                        gameState.board[row][col].color = getRandomColor();
+                    }
+                }
+            }
+            
+            renderBoard();
+        }
+        
+        // Проверка окончания игры
+        function checkGameOver() {
+            // Игра заканчивается, если закончились ходы
+            if (gameState.moves >= config.maxMoves) {
+                gameState.gameOver = true;
+                showMessage(`Игра окончена! Ваш счет: ${gameState.score}`);
+            }
+        }
+        
+        // Обновление интерфейса
+        function updateUI() {
+            scoreValue.textContent = gameState.score;
+            movesValue.textContent = `${gameState.moves} / ${config.maxMoves}`;
+        }
+        
+        // Показ сообщений
+        function showMessage(text) {
+            messageEl.textContent = text;
+        }
+        
+        // Поиск подсказки (доступного хода)
+        function findHint() {
+            // Сохраняем текущее состояние доски
+            const originalBoard = JSON.parse(JSON.stringify(gameState.board));
+            
+            // Проверяем все возможные обмены соседних фигур
+            for (let row = 0; row < config.rows; row++) {
+                for (let col = 0; col < config.cols; col++) {
+                    // Проверяем обмен с правой фигурой
+                    if (col < config.cols - 1) {
+                        swapTiles(row, col, row, col + 1);
+                        const matches = findAllMatches();
+                        // Возвращаем фигуры на место
+                        swapTiles(row, col, row, col + 1);
+                        
+                        if (matches.length > 0) {
+                            return {row1: row, col1: col, row2: row, col2: col + 1};
+                        }
+                    }
+                    
+                    // Проверяем обмен с нижней фигурой
+                    if (row < config.rows - 1) {
+                        swapTiles(row, col, row + 1, col);
+                        const matches = findAllMatches();
+                        // Возвращаем фигуры на место
+                        swapTiles(row, col, row + 1, col);
+                        
+                        if (matches.length > 0) {
+                            return {row1: row, col1: col, row2: row + 1, col2: col};
+                        }
+                    }
+                }
+            }
+            
+            // Восстанавливаем исходное состояние доски
+            gameState.board = originalBoard;
+            return null;
+        }
+        
+        // Показ подсказки
+        function showHint() {
+            if (gameState.gameOver) return;
+            
+            const hint = findHint();
+            if (hint) {
+                // Подсвечиваем подсказку
+                const cell1 = document.querySelector(`.cell[data-row="${hint.row1}"][data-col="${hint.col1}"]`);
+                const cell2 = document.querySelector(`.cell[data-row="${hint.row2}"][data-col="${hint.col2}"]`);
+                
+                if (cell1 && cell2) {
+                    // Снимаем предыдущие выделения
+                    document.querySelectorAll('.cell').forEach(cell => {
+                        cell.classList.remove('selected');
+                    });
+                    
+                    // Добавляем выделение для подсказки
+                    cell1.classList.add('selected');
+                    cell2.classList.add('selected');
+                    
+                    showMessage(`Подсказка: поменяйте местами эти два фрукта`);
+                    
+                    // Убираем выделение через 3 секунды
+                    setTimeout(() => {
+                        cell1.classList.remove('selected');
+                        cell2.classList.remove('selected');
+                        gameState.selectedCell = null;
+                        showMessage("Подсказка исчезла. Попробуйте сами!");
+                    }, 3000);
+                }
+            } else {
+                showMessage("Подсказка не найдена. Возможно, ходов больше нет.");
+            }
+        }
+        
+        // Обработчики кнопок
+        restartButton.addEventListener('click', initGame);
+        hintButton.addEventListener('click', showHint);
+        
+        // Запуск игры при загрузке страницы
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
