@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Три в ряд - Фруктовый матч</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1>🍎 Фруктовый матч 🍌</h1>
+    
+    <div class="container">
+        <!-- ИНФОРМАЦИЯ ОБ ИГРЕ -->
+        <div class="game-info">
+            <div class="score">
+                <div>🍓 Счет</div>
+                <div class="score-value">0</div>
+            </div>
+            <div class="moves">
+                <div>🎮 Ходы</div>
+                <div class="moves-value">0 / 30</div>
+            </div>
+        </div>
+        
+        <!-- ИГРОВОЕ ПОЛЕ -->
+        <div class="game-board" id="gameBoard">
+            <!-- Здесь появятся фрукты -->
+        </div>
+        
+        <!-- СООБЩЕНИЯ ИГРЫ -->
+        <div class="message" id="message">Выберите первый фрукт!</div>
+        
+        <!-- КНОПКИ УПРАВЛЕНИЯ -->
+        <div class="controls">
+            <button id="restartButton">🔄 Новая игра</button>
+            <button id="hintButton">💡 Подсказка</button>
+        </div>
+        
+        <!-- ПРАВИЛА ИГРЫ -->
+        <div class="rules">
+            <h3>🎯 Как играть:</h3>
+            <ul>
+                <li>🔸 <strong>Цель:</strong> Собирайте линии из 3+ одинаковых фруктов</li>
+                <li>🔸 <strong>Ход:</strong> Нажмите на фрукт, затем на соседний фрукт</li>
+                <li>🔸 <strong>Окончание:</strong> Игра заканчивается после 30 ходов</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Подключаем JavaScript файлы -->
+    <script src="js/game.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/ui.js"></script>
+    
+</body>
+</html>
