@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Три в ряд - Прототип</title>
+    <title>Три в ряд - Фруктовый матч</title>
     <style>
+        /* ============================================
+           ОСНОВНЫЕ НАСТРОЙКИ СТРАНИЦЫ
+           ============================================ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -12,7 +15,7 @@
         }
         
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: black;
             color: #fff;
             min-height: 100vh;
@@ -20,8 +23,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden;
         }
         
+        /* ============================================
+           КОНТЕЙНЕР И ЗАГОЛОВОК
+           ============================================ */
         .container {
             max-width: 800px;
             width: 100%;
@@ -30,6 +37,8 @@
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             margin-top: 20px;
+            position: relative;
+            z-index: 1;
         }
         
         h1 {
@@ -39,6 +48,9 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
         
+        /* ============================================
+           ИНФОРМАЦИЯ ОБ ИГРЕ (СЧЕТ И ХОДЫ)
+           ============================================ */
         .game-info {
             display: flex;
             justify-content: space-between;
@@ -59,6 +71,9 @@
             color: #FFD700;
         }
         
+        /* ============================================
+           ИГРОВОЕ ПОЛЕ 8x8
+           ============================================ */
         .game-board {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
@@ -68,34 +83,52 @@
             padding: 10px;
             border-radius: 10px;
             max-width: 500px;
+            position: relative;
         }
         
+        /* ============================================
+           ЯЧЕЙКИ С ФРУКТАМИ
+           ============================================ */
         .cell {
             aspect-ratio: 1;
-            border-radius: 8px;
+            border-radius: 16px;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            font-size: 2em; /* Увеличим размер эмоджи */
+            font-size: 2em;
             user-select: none;
             background-color: rgba(255, 255, 255, 0.15);
+            position: relative;
+            overflow: hidden;
         }
         
+        /* Эффект при наведении на фрукт */
         .cell:hover {
             transform: scale(1.05);
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
             background-color: rgba(255, 255, 255, 0.25);
         }
         
+        /* Выделенный фрукт (пульсирует) */
         .cell.selected {
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
             transform: scale(1.05);
             background-color: rgba(255, 215, 0, 0.2);
+            animation: pulse 1s infinite;
         }
         
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.9); }
+            50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.9); }
+        }
+        
+        /* ============================================
+           КНОПКИ УПРАВЛЕНИЯ
+           ============================================ */
         .controls {
             display: flex;
             justify-content: center;
@@ -125,6 +158,9 @@
             transform: translateY(1px);
         }
         
+        /* ============================================
+           БЛОК С ПРАВИЛАМИ
+           ============================================ */
         .rules {
             margin-top: 25px;
             padding: 15px;
@@ -147,6 +183,9 @@
             margin-bottom: 8px;
         }
         
+        /* ============================================
+           СООБЩЕНИЯ ИГРЫ
+           ============================================ */
         .message {
             text-align: center;
             margin-top: 15px;
@@ -155,6 +194,143 @@
             color: #FFD700;
         }
         
+        /* ============================================
+           АНИМАЦИИ: ВЗРЫВ ФРУКТОВ
+           ============================================ */
+        /* Частицы при взрыве */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1000;
+            font-size: 1.2em;
+            animation: particleExplode 0.7s forwards;
+        }
+        
+        @keyframes particleExplode {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0.1) rotate(var(--rot));
+            }
+        }
+        
+    
+        
+        @keyframes flashEffect {
+            0% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+        
+        /* ============================================
+           АНИМАЦИИ: ТЕКСТ "МАТЧ!"
+           ============================================ */
+        .match-animation {
+            position: absolute;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            opacity: 0;
+            z-index: 100;
+            animation: matchFloat 0.7s ease-out forwards;
+        }
+        
+        @keyframes matchFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(1);
+            }
+        }
+        
+        /* ============================================
+           АНИМАЦИИ: КОМБО
+           ============================================ */
+        .combo-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.9);
+            opacity: 0;
+            z-index: 1001;
+            pointer-events: none;
+            animation: comboBounce 1s ease-out;
+        }
+        
+        @keyframes comboBounce {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.2);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+            40% {
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            80% {
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        /* ============================================
+           АНИМАЦИИ: ВЗРЫВ ЯЧЕЙКИ И ОБМЕН
+           ============================================ */
+        .cell.exploding {
+            animation: cellExplode 0.3s ease-out forwards;
+        }
+        
+        @keyframes cellExplode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .swapping {
+            animation: swapAnimation 0.2s ease-out;
+        }
+        
+        @keyframes swapAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* ============================================
+           АДАПТИВНОСТЬ ДЛЯ ТЕЛЕФОНОВ
+           ============================================ */
         @media (max-width: 600px) {
             .game-board {
                 grid-template-columns: repeat(8, 1fr);
@@ -173,68 +349,83 @@
             button {
                 width: 80%;
             }
+            
+            .combo-text {
+                font-size: 2.5em;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Три в ряд - Прототип</h1>
+    <h1>🍎 Фруктовый матч 🍌</h1>
     
     <div class="container">
+        <!-- ИНФОРМАЦИЯ ОБ ИГРЕ -->
         <div class="game-info">
             <div class="score">
-                <div>Счет</div>
+                <div>🍓 Счет</div>
                 <div class="score-value">0</div>
             </div>
             <div class="moves">
-                <div>Ходы</div>
-                <div class="moves-value">0</div>
+                <div>🎮 Ходы</div>
+                <div class="moves-value">0 / 30</div>
             </div>
         </div>
         
+        <!-- ИГРОВОЕ ПОЛЕ -->
         <div class="game-board" id="gameBoard">
-            <!-- Игровое поле будет сгенерировано через JavaScript -->
+            <!-- Здесь появятся фрукты -->
         </div>
         
-        <div class="message" id="message"></div>
+        <!-- СООБЩЕНИЯ ИГРЫ -->
+        <div class="message" id="message">Выберите первый фрукт!</div>
         
+        <!-- КНОПКИ УПРАВЛЕНИЯ -->
         <div class="controls">
-            <button id="restartButton">Новая ИГРА</button>
-            <button id="hintButton">Подсказка!</button>
+            <button id="restartButton">🔄 Новая игра</button>
+            <button id="hintButton">💡 Подсказка</button>
         </div>
         
+        <!-- ПРАВИЛА ИГРЫ -->
         <div class="rules">
-            <h3>Правила игры:</h3>
+            <h3>🎯 Как играть:</h3>
             <ul>
-                <li>Цель: соберите линии из трех или более одинаковых фруктов</li>
-                <li>Нажмите на фрукт, чтобы выделить его, затем нажмите на соседний фрукт, чтобы поменять их местами</li>
-                <li>Если после обмена образуется линия из трех или более одинаковых фруктов, они исчезнут, и вы получите очки</li>
-                <li>Игра продолжается, пока есть возможные ходы</li>
+                <li>🔸 <strong>Цель:</strong> Собирайте линии из 3+ одинаковых фруктов</li>
+                <li>🔸 <strong>Ход:</strong> Нажмите на фрукт, затем на соседний фрукт</li>
+                <li>🔸 <strong>Взрыв:</strong> Собранные линии взрываются с эффектами!</li>
+                <li>🔸 <strong>Окончание:</strong> Игра заканчивается после 30 ходов</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // Конфигурация игры
-        const config = {
-            rows: 8,
-            cols: 8,
-            // Только 4 типа фруктов
-            colors: ['🍎', '🍌', '🍇', '🍊'],
-            minMatch: 3,
-            scorePerTile: 10,
-            maxMoves: 30
+        // ============================================
+        // ОСНОВНЫЕ НАСТРОЙКИ ИГРЫ
+        // ============================================
+        const gameConfig = {
+            rows: 8,               // 8 строк
+            cols: 8,               // 8 столбцов
+            fruits: ['🍎', '🍌', '🍇', '🍊'],  // 4 вида фруктов
+            minMatch: 3,           // минимум 3 в ряд
+            scorePerFruit: 10,     // 10 очков за фрукт
+            maxMoves: 30           // максимум 30 ходов
         };
         
-        // Состояние игры
-        let gameState = {
-            board: [],
-            selectedCell: null,
-            score: 0,
-            moves: 0,
-            gameOver: false
+        // ============================================
+        // СОСТОЯНИЕ ИГРЫ (все переменные здесь)
+        // ============================================
+        let game = {
+            board: [],            // игровое поле
+            selectedFruit: null,  // выбранный фрукт
+            score: 0,             // текущий счет
+            moves: 0,             // сделанные ходы
+            isGameOver: false,    // игра окончена?
+            combo: 0              // счетчик комбо
         };
         
-        // Элементы DOM
+        // ============================================
+        // ПОЛУЧЕНИЕ ЭЛЕМЕНТОВ ИЗ HTML
+        // ============================================
         const gameBoard = document.getElementById('gameBoard');
         const scoreValue = document.querySelector('.score-value');
         const movesValue = document.querySelector('.moves-value');
@@ -242,97 +433,116 @@
         const restartButton = document.getElementById('restartButton');
         const hintButton = document.getElementById('hintButton');
         
-        // Инициализация игры
-        function initGame() {
-            gameState.board = [];
-            gameState.selectedCell = null;
-            gameState.score = 0;
-            gameState.moves = 0;
-            gameState.gameOver = false;
+        // ============================================
+        // ФУНКЦИИ ДЛЯ ИГРОВОГО ПРОЦЕССА
+        // ============================================
+        
+        // 1. ЗАПУСК НОВОЙ ИГРЫ
+        function startNewGame() {
+            console.log("🚀 Запускаем новую игру!");
             
-            // Создаем пустое поле
-            for (let row = 0; row < config.rows; row++) {
-                gameState.board[row] = [];
-                for (let col = 0; col < config.cols; col++) {
-                    gameState.board[row][col] = {
-                        color: null,
+            // Сбрасываем состояние игры
+            game = {
+                board: [],
+                selectedFruit: null,
+                score: 0,
+                moves: 0,
+                isGameOver: false,
+                combo: 0
+            };
+            
+            // Создаем пустое поле 8x8
+            createEmptyBoard();
+            
+            // Заполняем случайными фруктами
+            fillWithFruits();
+            
+            // Убираем начальные совпадения
+            removeStartingMatches();
+            
+            // Рисуем поле
+            drawGameBoard();
+            
+            // Обновляем счет
+            updateScoreDisplay();
+            
+            showMessage("🎮 Игра началась! Выберите первый фрукт");
+        }
+        
+        // 2. СОЗДАНИЕ ПУСТОГО ПОЛЯ
+        function createEmptyBoard() {
+            game.board = [];
+            for (let row = 0; row < gameConfig.rows; row++) {
+                game.board[row] = [];
+                for (let col = 0; col < gameConfig.cols; col++) {
+                    game.board[row][col] = {
+                        fruit: null,  // здесь будет фрукт
                         row: row,
                         col: col
                     };
                 }
             }
-            
-            // Заполняем поле случайными фигурами
-            fillBoard();
-            
-            // Убираем начальные совпадения
-            removeInitialMatches();
-            
-            // Отрисовываем поле
-            renderBoard();
-            updateUI();
-            showMessage("Игра началась! Выберите фрукт для обмена.");
         }
         
-        // Заполнение поля случайными фигурами
-        function fillBoard() {
-            for (let row = 0; row < config.rows; row++) {
-                for (let col = 0; col < config.cols; col++) {
-                    // Назначаем случайный цвет
-                    gameState.board[row][col].color = getRandomColor();
+        // 3. ЗАПОЛНЕНИЕ ФРУКТАМИ
+        function fillWithFruits() {
+            for (let row = 0; row < gameConfig.rows; row++) {
+                for (let col = 0; col < gameConfig.cols; col++) {
+                    game.board[row][col].fruit = getRandomFruit();
                 }
             }
         }
         
-        // Удаление начальных совпадений
-        function removeInitialMatches() {
+        // 4. ПОЛУЧЕНИЕ СЛУЧАЙНОГО ФРУКТА
+        function getRandomFruit() {
+            const randomIndex = Math.floor(Math.random() * gameConfig.fruits.length);
+            return gameConfig.fruits[randomIndex];
+        }
+        
+        // 5. УДАЛЕНИЕ СОВПАДЕНИЙ В НАЧАЛЕ
+        function removeStartingMatches() {
             let hasMatches = true;
             
-            // Пока есть совпадения, заменяем их новыми фигурами
             while (hasMatches) {
-                const matches = findAllMatches();
+                const matches = findMatches();
                 if (matches.length === 0) {
                     hasMatches = false;
                 } else {
-                    // Заменяем совпадающие фигуры
+                    // Заменяем совпавшие фрукты
                     for (const match of matches) {
                         for (const tile of match.tiles) {
-                            gameState.board[tile.row][tile.col].color = getRandomColor();
+                            game.board[tile.row][tile.col].fruit = getRandomFruit();
                         }
                     }
                 }
             }
         }
         
-        // Получение случайного цвета
-        function getRandomColor() {
-            return config.colors[Math.floor(Math.random() * config.colors.length)];
-        }
-        
-        // Отрисовка игрового поля
-        function renderBoard() {
+        // 6. ОТРИСОВКА ИГРОВОГО ПОЛЯ
+        function drawGameBoard() {
             gameBoard.innerHTML = '';
-            gameBoard.style.gridTemplateColumns = `repeat(${config.cols}, 1fr)`;
+            gameBoard.style.gridTemplateColumns = `repeat(${gameConfig.cols}, 1fr)`;
             
-            for (let row = 0; row < config.rows; row++) {
-                for (let col = 0; col < config.cols; col++) {
-                    const tile = gameState.board[row][col];
+            for (let row = 0; row < gameConfig.rows; row++) {
+                for (let col = 0; col < gameConfig.cols; col++) {
+                    const tile = game.board[row][col];
                     const cell = document.createElement('div');
+                    
                     cell.className = 'cell';
                     cell.dataset.row = row;
                     cell.dataset.col = col;
-                    cell.textContent = tile.color;
+                    cell.textContent = tile.fruit;
                     
-                    // Добавляем обработчик клика
-                    cell.addEventListener('click', () => handleCellClick(row, col));
+                    // Клик по ячейке
+                    cell.addEventListener('click', () => handleFruitClick(row, col));
                     
                     gameBoard.appendChild(cell);
                 }
             }
             
-            // Обновляем выделенную ячейку
-            if (gameState.selectedCell) {
-                const {row, col} = gameState.selectedCell;
+            // Выделяем выбранный фрукт
+            if (game.selectedFruit) {
+                const {row, col} = game.selectedFruit;
                 const selectedCell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
                 if (selectedCell) {
                     selectedCell.classList.add('selected');
@@ -340,81 +550,101 @@
             }
         }
         
-        // Обработка клика по ячейке
-        function handleCellClick(row, col) {
-            if (gameState.gameOver) return;
+        // 7. КЛИК ПО ФРУКТУ
+        function handleFruitClick(row, col) {
+            if (game.isGameOver) return;
             
-            // Если ничего не выбрано, выбираем эту ячейку
-            if (!gameState.selectedCell) {
-                gameState.selectedCell = {row, col};
-                renderBoard();
-                showMessage(`Выбран фрукт. Теперь выберите соседний фрукт для обмена.`);
+            // Если ничего не выбрано - выбираем
+            if (!game.selectedFruit) {
+                game.selectedFruit = {row, col};
+                drawGameBoard();
+                showMessage("✅ Фрукт выбран. Теперь выберите соседний фрукт");
                 return;
             }
             
-            const selectedRow = gameState.selectedCell.row;
-            const selectedCol = gameState.selectedCell.col;
+            const selectedRow = game.selectedFruit.row;
+            const selectedCol = game.selectedFruit.col;
             
-            // Проверяем, является ли выбранная ячейка соседней
-            const isAdjacent = Math.abs(row - selectedRow) + Math.abs(col - selectedCol) === 1;
+            // Проверяем, соседние ли фрукты
+            const isNeighbor = Math.abs(row - selectedRow) + Math.abs(col - selectedCol) === 1;
             
-            if (!isAdjacent) {
-                // Если ячейка не соседняя, просто выбираем новую
-                gameState.selectedCell = {row, col};
-                renderBoard();
-                showMessage(`Выбран другой фрукт. Теперь выберите соседний фрукт для обмена.`);
+            if (!isNeighbor) {
+                // Выбираем новый фрукт
+                game.selectedFruit = {row, col};
+                drawGameBoard();
+                showMessage("🔄 Выбран другой фрукт");
                 return;
             }
             
-            // Меняем фигуры местами
-            swapTiles(selectedRow, selectedCol, row, col);
+            // Меняем фрукты местами с анимацией
+            animateSwap(selectedRow, selectedCol, row, col);
+            swapFruits(selectedRow, selectedCol, row, col);
             
-            // Проверяем, есть ли совпадения после обмена
-            const matches = findAllMatches();
+            // Проверяем, есть ли совпадения
+            const matches = findMatches();
             
             if (matches.length === 0) {
-                // Если совпадений нет, возвращаем фигуры на место
-                swapTiles(selectedRow, selectedCol, row, col);
-                gameState.selectedCell = null;
-                renderBoard();
-                showMessage("Не образовалось линий. Попробуйте другой обмен.");
+                // Если нет совпадений - возвращаем
+                setTimeout(() => {
+                    swapFruits(selectedRow, selectedCol, row, col);
+                    game.selectedFruit = null;
+                    drawGameBoard();
+                    showMessage("❌ Нет совпадений. Попробуйте еще!");
+                }, 300);
             } else {
-                // Если есть совпадения, обрабатываем их
-                gameState.selectedCell = null;
-                gameState.moves++;
-                processMatches(matches);
-                showMessage(`Отлично! Вы набрали очки за собранные линии.`);
+                // Если есть совпадения - обрабатываем
+                game.selectedFruit = null;
+                game.moves++;
+                game.combo = 1;
                 
-                // Проверяем, не закончилась ли игра
-                checkGameOver();
+                setTimeout(() => {
+                    processMatches(matches);
+                    showMessage("🎉 Отличный ход!");
+                    checkIfGameOver();
+                }, 500);
             }
             
-            updateUI();
+            updateScoreDisplay();
         }
         
-        // Обмен двух фигур местами
-        function swapTiles(row1, col1, row2, col2) {
-            const temp = gameState.board[row1][col1].color;
-            gameState.board[row1][col1].color = gameState.board[row2][col2].color;
-            gameState.board[row2][col2].color = temp;
+        // 8. АНИМАЦИЯ ОБМЕНА
+        function animateSwap(row1, col1, row2, col2) {
+            const cell1 = document.querySelector(`.cell[data-row="${row1}"][data-col="${col1}"]`);
+            const cell2 = document.querySelector(`.cell[data-row="${row2}"][data-col="${col2}"]`);
+            
+            if (cell1 && cell2) {
+                cell1.classList.add('swapping');
+                cell2.classList.add('swapping');
+                
+                setTimeout(() => {
+                    cell1.classList.remove('swapping');
+                    cell2.classList.remove('swapping');
+                }, 200);
+            }
         }
         
-        // Поиск всех совпадений на поле
-        function findAllMatches() {
+        // 9. ОБМЕН ФРУКТОВ
+        function swapFruits(row1, col1, row2, col2) {
+            const temp = game.board[row1][col1].fruit;
+            game.board[row1][col1].fruit = game.board[row2][col2].fruit;
+            game.board[row2][col2].fruit = temp;
+        }
+        
+        // 10. ПОИСК СОВПАДЕНИЙ
+        function findMatches() {
             const matches = [];
             
-            // Проверка горизонтальных совпадений
-            for (let row = 0; row < config.rows; row++) {
-                for (let col = 0; col < config.cols - 2; col++) {
-                    const color = gameState.board[row][col].color;
-                    if (color && 
-                        color === gameState.board[row][col+1].color && 
-                        color === gameState.board[row][col+2].color) {
+            // Проверяем горизонтальные линии
+            for (let row = 0; row < gameConfig.rows; row++) {
+                for (let col = 0; col < gameConfig.cols - 2; col++) {
+                    const fruit = game.board[row][col].fruit;
+                    if (fruit && 
+                        fruit === game.board[row][col+1].fruit && 
+                        fruit === game.board[row][col+2].fruit) {
                         
-                        // Расширяем совпадение, если есть более 3 фигур в ряд
                         let matchEnd = col + 2;
-                        while (matchEnd + 1 < config.cols && 
-                               gameState.board[row][matchEnd+1].color === color) {
+                        while (matchEnd + 1 < gameConfig.cols && 
+                               game.board[row][matchEnd+1].fruit === fruit) {
                             matchEnd++;
                         }
                         
@@ -424,28 +654,27 @@
                         }
                         
                         matches.push({
-                            color: color,
+                            fruit: fruit,
                             tiles: tiles,
                             direction: 'horizontal'
                         });
                         
-                        col = matchEnd; // Пропускаем уже проверенные ячейки
+                        col = matchEnd;
                     }
                 }
             }
             
-            // Проверка вертикальных совпадений
-            for (let col = 0; col < config.cols; col++) {
-                for (let row = 0; row < config.rows - 2; row++) {
-                    const color = gameState.board[row][col].color;
-                    if (color && 
-                        color === gameState.board[row+1][col].color && 
-                        color === gameState.board[row+2][col].color) {
+            // Проверяем вертикальные линии
+            for (let col = 0; col < gameConfig.cols; col++) {
+                for (let row = 0; row < gameConfig.rows - 2; row++) {
+                    const fruit = game.board[row][col].fruit;
+                    if (fruit && 
+                        fruit === game.board[row+1][col].fruit && 
+                        fruit === game.board[row+2][col].fruit) {
                         
-                        // Расширяем совпадение, если есть более 3 фигур в ряд
                         let matchEnd = row + 2;
-                        while (matchEnd + 1 < config.rows && 
-                               gameState.board[matchEnd+1][col].color === color) {
+                        while (matchEnd + 1 < gameConfig.rows && 
+                               game.board[matchEnd+1][col].fruit === fruit) {
                             matchEnd++;
                         }
                         
@@ -455,12 +684,12 @@
                         }
                         
                         matches.push({
-                            color: color,
+                            fruit: fruit,
                             tiles: tiles,
                             direction: 'vertical'
                         });
                         
-                        row = matchEnd; // Пропускаем уже проверенные ячейки
+                        row = matchEnd;
                     }
                 }
             }
@@ -468,59 +697,123 @@
             return matches;
         }
         
-        // Обработка совпадений
+        // 11. ВЗРЫВ ФРУКТА
+        function explodeFruit(row, col, fruit) {
+            const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+            if (!cell) return;
+            
+            const rect = cell.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Добавляем анимацию взрыва
+            cell.classList.add('exploding');
+            
+            // Создаем частицы
+            for (let i = 0; i < 15; i++) {
+                createParticle(centerX, centerY, fruit);
+            }
+            
+            // Эффект вспышки
+            createFlashEffect();
+        }
+        
+        // 12. СОЗДАНИЕ ЧАСТИЦЫ
+        function createParticle(x, y, fruit) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = fruit;
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            
+            // Случайное направление
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 50 + Math.random() * 100;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            const rotation = Math.random() * 360;
+            
+            particle.style.setProperty('--tx', `${tx}px`);
+            particle.style.setProperty('--ty', `${ty}px`);
+            particle.style.setProperty('--rot', `${rotation}deg`);
+            
+            document.body.appendChild(particle);
+            
+            // Удаляем через 0.7 секунд
+            setTimeout(() => particle.remove(), 700);
+        }
+        
+        // 13. СОЗДАНИЕ ВСПЫШКИ
+        function createFlashEffect() {
+            const flash = document.createElement('div');
+            flash.className = 'explosion-overlay';
+            document.body.appendChild(flash);
+            
+            setTimeout(() => flash.remove(), 300);
+        }
+        
+        // 14. ОБРАБОТКА СОВПАДЕНИЙ
         function processMatches(matches) {
-            // Собираем все ячейки, которые нужно удалить
             const tilesToRemove = [];
+            
+            // Собираем все фрукты для удаления
             for (const match of matches) {
                 for (const tile of match.tiles) {
-                    // Проверяем, не добавлена ли уже эта ячейка
                     if (!tilesToRemove.some(t => t.row === tile.row && t.col === tile.col)) {
                         tilesToRemove.push(tile);
                     }
                 }
             }
             
-            // Удаляем фигуры
-            for (const tile of tilesToRemove) {
-                gameState.board[tile.row][tile.col].color = null;
-            }
+            // Взрываем каждый фрукт
+            tilesToRemove.forEach((tile, index) => {
+                const fruit = game.board[tile.row][tile.col].fruit;
+                setTimeout(() => {
+                    explodeFruit(tile.row, tile.col, fruit);
+                }, index * 30);
+            });
             
-            // Добавляем очки
-            gameState.score += tilesToRemove.length * config.scorePerTile;
-            
-            // Анимируем удаление
-            renderBoard();
-            
-            // Заполняем пустые места новыми фигурами
+            // Удаляем фрукты после анимации
             setTimeout(() => {
-                dropTiles();
-                fillEmptySpaces();
-                
-                // Проверяем, не появились ли новые совпадения после падения
-                const newMatches = findAllMatches();
-                if (newMatches.length > 0) {
-                    // Рекурсивно обрабатываем новые совпадения
-                    setTimeout(() => {
-                        processMatches(newMatches);
-                        showMessage("Комбо! Дополнительные линии!");
-                    }, 500);
+                for (const tile of tilesToRemove) {
+                    game.board[tile.row][tile.col].fruit = null;
                 }
-            }, 500);
+                
+                // Добавляем очки
+                game.score += tilesToRemove.length * gameConfig.scorePerFruit;
+                
+                drawGameBoard();
+                updateScoreDisplay();
+                
+                // Падают новые фрукты
+                setTimeout(() => {
+                    dropFruitsDown();
+                    fillEmptySpaces();
+                    
+                    // Проверяем новые совпадения
+                    const newMatches = findMatches();
+                    if (newMatches.length > 0) {
+                        game.combo++;
+                        showComboAnimation(game.combo);
+                        setTimeout(() => {
+                            processMatches(newMatches);
+                            showMessage(`🔥 x${game.combo} КОМБО!`);
+                        }, 500);
+                    }
+                }, 500);
+            }, tilesToRemove.length * 30 + 200);
         }
         
-        // Падение фигур вниз
-        function dropTiles() {
-            for (let col = 0; col < config.cols; col++) {
-                let emptyRow = config.rows - 1;
+        // 15. ПАДЕНИЕ ФРУКТОВ
+        function dropFruitsDown() {
+            for (let col = 0; col < gameConfig.cols; col++) {
+                let emptyRow = gameConfig.rows - 1;
                 
-                // Идем снизу вверх
-                for (let row = config.rows - 1; row >= 0; row--) {
-                    if (gameState.board[row][col].color !== null) {
-                        // Если текущая ячейка не пуста, перемещаем ее вниз
+                for (let row = gameConfig.rows - 1; row >= 0; row--) {
+                    if (game.board[row][col].fruit !== null) {
                         if (row !== emptyRow) {
-                            gameState.board[emptyRow][col].color = gameState.board[row][col].color;
-                            gameState.board[row][col].color = null;
+                            game.board[emptyRow][col].fruit = game.board[row][col].fruit;
+                            game.board[row][col].fruit = null;
                         }
                         emptyRow--;
                     }
@@ -528,119 +821,118 @@
             }
         }
         
-        // Заполнение пустых мест новыми фигурами
+        // 16. ЗАПОЛНЕНИЕ ПУСТЫХ МЕСТ
         function fillEmptySpaces() {
-            for (let row = 0; row < config.rows; row++) {
-                for (let col = 0; col < config.cols; col++) {
-                    if (gameState.board[row][col].color === null) {
-                        gameState.board[row][col].color = getRandomColor();
+            for (let row = 0; row < gameConfig.rows; row++) {
+                for (let col = 0; col < gameConfig.cols; col++) {
+                    if (game.board[row][col].fruit === null) {
+                        game.board[row][col].fruit = getRandomFruit();
                     }
                 }
             }
             
-            renderBoard();
+            drawGameBoard();
         }
         
-        // Проверка окончания игры
-        function checkGameOver() {
-            // Игра заканчивается, если закончились ходы
-            if (gameState.moves >= config.maxMoves) {
-                gameState.gameOver = true;
-                showMessage(`Игра окончена! Ваш счет: ${gameState.score}`);
+        // 17. АНИМАЦИЯ КОМБО
+        function showComboAnimation(comboCount) {
+            if (comboCount > 1) {
+                const comboText = document.createElement('div');
+                comboText.className = 'combo-text';
+                comboText.textContent = `x${comboCount} КОМБО!`;
+                
+                document.body.appendChild(comboText);
+                
+                setTimeout(() => comboText.remove(), 1000);
             }
         }
         
-        // Обновление интерфейса
-        function updateUI() {
-            scoreValue.textContent = gameState.score;
-            movesValue.textContent = `${gameState.moves} / ${config.maxMoves}`;
+        // 18. ПРОВЕРКА ОКОНЧАНИЯ ИГРЫ
+        function checkIfGameOver() {
+            if (game.moves >= gameConfig.maxMoves) {
+                game.isGameOver = true;
+                showMessage(`🎮 Игра окончена! Ваш счет: ${game.score}`);
+            }
         }
         
-        // Показ сообщений
+        // 19. ОБНОВЛЕНИЕ СЧЕТА НА ЭКРАНЕ
+        function updateScoreDisplay() {
+            scoreValue.textContent = game.score;
+            movesValue.textContent = `${game.moves} / ${gameConfig.maxMoves}`;
+        }
+        
+        // 20. ПОКАЗ СООБЩЕНИЙ
         function showMessage(text) {
             messageEl.textContent = text;
         }
         
-        // Поиск подсказки (доступного хода)
-        function findHint() {
-            // Сохраняем текущее состояние доски
-            const originalBoard = JSON.parse(JSON.stringify(gameState.board));
-            
-            // Проверяем все возможные обмены соседних фигур
-            for (let row = 0; row < config.rows; row++) {
-                for (let col = 0; col < config.cols; col++) {
-                    // Проверяем обмен с правой фигурой
-                    if (col < config.cols - 1) {
-                        swapTiles(row, col, row, col + 1);
-                        const matches = findAllMatches();
-                        // Возвращаем фигуры на место
-                        swapTiles(row, col, row, col + 1);
-                        
-                        if (matches.length > 0) {
-                            return {row1: row, col1: col, row2: row, col2: col + 1};
-                        }
-                    }
-                    
-                    // Проверяем обмен с нижней фигурой
-                    if (row < config.rows - 1) {
-                        swapTiles(row, col, row + 1, col);
-                        const matches = findAllMatches();
-                        // Возвращаем фигуры на место
-                        swapTiles(row, col, row + 1, col);
-                        
-                        if (matches.length > 0) {
-                            return {row1: row, col1: col, row2: row + 1, col2: col};
-                        }
-                    }
-                }
-            }
-            
-            // Восстанавливаем исходное состояние доски
-            gameState.board = originalBoard;
-            return null;
-        }
-        
-        // Показ подсказки
+        // 21. ПОДСКАЗКА
         function showHint() {
-            if (gameState.gameOver) return;
+            if (game.isGameOver) return;
             
-            const hint = findHint();
-            if (hint) {
-                // Подсвечиваем подсказку
-                const cell1 = document.querySelector(`.cell[data-row="${hint.row1}"][data-col="${hint.col1}"]`);
-                const cell2 = document.querySelector(`.cell[data-row="${hint.row2}"][data-col="${hint.col2}"]`);
-                
-                if (cell1 && cell2) {
-                    // Снимаем предыдущие выделения
-                    document.querySelectorAll('.cell').forEach(cell => {
-                        cell.classList.remove('selected');
-                    });
+            // Ищем возможный ход
+            for (let row = 0; row < gameConfig.rows; row++) {
+                for (let col = 0; col < gameConfig.cols; col++) {
+                    if (col < gameConfig.cols - 1) {
+                        swapFruits(row, col, row, col + 1);
+                        const matches = findMatches();
+                        swapFruits(row, col, row, col + 1);
+                        
+                        if (matches.length > 0) {
+                            highlightHint(row, col, row, col + 1);
+                            return;
+                        }
+                    }
                     
-                    // Добавляем выделение для подсказки
-                    cell1.classList.add('selected');
-                    cell2.classList.add('selected');
-                    
-                    showMessage(`Подсказка: поменяйте местами эти два фрукта`);
-                    
-                    // Убираем выделение через 3 секунды
-                    setTimeout(() => {
-                        cell1.classList.remove('selected');
-                        cell2.classList.remove('selected');
-                        gameState.selectedCell = null;
-                        showMessage("Подсказка исчезла. Попробуйте сами!");
-                    }, 3000);
+                    if (row < gameConfig.rows - 1) {
+                        swapFruits(row, col, row + 1, col);
+                        const matches = findMatches();
+                        swapFruits(row, col, row + 1, col);
+                        
+                        if (matches.length > 0) {
+                            highlightHint(row, col, row + 1, col);
+                            return;
+                        }
+                    }
                 }
-            } else {
-                showMessage("Подсказка не найдена. Возможно, ходов больше нет.");
+            }
+            
+            showMessage("🤔 Подсказка не найдена");
+        }
+        
+        // 22. ВЫДЕЛЕНИЕ ПОДСКАЗКИ
+        function highlightHint(row1, col1, row2, col2) {
+            const cell1 = document.querySelector(`.cell[data-row="${row1}"][data-col="${col1}"]`);
+            const cell2 = document.querySelector(`.cell[data-row="${row2}"][data-col="${col2}"]`);
+            
+            if (cell1 && cell2) {
+                document.querySelectorAll('.cell').forEach(cell => {
+                    cell.classList.remove('selected');
+                });
+                
+                cell1.classList.add('selected');
+                cell2.classList.add('selected');
+                
+                showMessage("💡 Поменяйте эти фрукты местами");
+                
+                setTimeout(() => {
+                    cell1.classList.remove('selected');
+                    cell2.classList.remove('selected');
+                    game.selectedFruit = null;
+                    showMessage("Попробуйте сами!");
+                }, 3000);
             }
         }
         
-        // Обработчики кнопок
-        restartButton.addEventListener('click', initGame);
+        // ============================================
+        // ЗАПУСК ИГРЫ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
+        // ============================================
+        window.addEventListener('DOMContentLoaded', startNewGame);
+        restartButton.addEventListener('click', startNewGame);
         hintButton.addEventListener('click', showHint);
         
-        // Запуск игры при загрузке страницы
-        window.addEventListener('DOMContentLoaded', initGame);
+        console.log("✨ Игра готова к запуску!");
     </script>
+    
 </body>
 </html>
